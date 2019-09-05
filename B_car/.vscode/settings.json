@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.env.windows": {
+        "PATH": "C:\\Users\\kk\\.platformio\\penv\\Scripts;C:\\Users\\kk\\.platformio\\penv;C:\\MinGW\\bin;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\mingw64\\libexec\\git-core;C:\\Program Files\\Git\\bin;C:\\Windows\\System32;C:\\Users\\kk\\Anaconda3;C:\\Program Files\\nodejs\\;C:\\MinGW\\bin;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\bin;C:\\Program Files\\Git\\mingw64\\libexec\\git-core;C:\\Windows\\System32;C:\\Users\\kk\\Anaconda3;C:\\Users\\kk\\AppData\\Roaming\\npm;C:\\Users\\kk\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\MinGW\\bin;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\mingw64\\libexec\\git-core;C:\\Program Files\\Git\\bin;C:\\Windows\\System32;C:\\Users\\kk\\Anaconda3;C:\\Program Files\\nodejs\\;C:\\MinGW\\bin;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\bin;C:\\Program Files\\Git\\mingw64\\libexec\\git-core;C:\\Windows\\System32;C:\\Users\\kk\\Anaconda3;C:\\Users\\kk\\AppData\\Roaming\\npm;C:\\Users\\kk\\AppData\\Local\\Programs\\Microsoft VS Code\\bin",
+        "PLATFORMIO_CALLER": "vscode"
+    }
+}

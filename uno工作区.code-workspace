@@ -3,6 +3,9 @@
 		{
 			"name": "serialTest",
 			"path": "serialTest"
+		},
+		{
+			"path": "B_car"
 		}
 	],
 	"settings": {
