@@ -1,17 +1,16 @@
 /********
-FangShiRui ÐÞ¸ÄÓÚ2019.3
+FangShiRui ä¿®æ”¹äºŽ2019.3
 *********/
 
-#ifndef BalanceCar_h // ·ÀÖ¹¶þ´Îµ÷ÓÃÕâ¸öÎÄ¼þ
+#ifndef BalanceCar_h // é˜²æ­¢äºŒæ¬¡è°ƒç”¨è¿™ä¸ªæ–‡ä»¶
 #define BalanceCar_h
 
-/////////////////Ìí¼Ó¸ù±¾¿âº¯Êý//////////////////////////////////////////////////
+/////////////////æ·»åŠ æ ¹æœ¬åº“å‡½æ•°//////////////////////////////////////////////////
 
 #include <Arduino.h>
 ///////////////////////////////////////////////////////////////////////////////
 
-class BalanceCar
-{
+class BalanceCar {
 public:
     void pwma(float angle, float angle5, int Pin1, int Pin2, int Pin3, int Pin4, int PinPWMA, int PinPWMB);
     // int pulseright = 0;

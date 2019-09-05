@@ -1,15 +1,15 @@
 
-//FangShiRui ÐÞ¸ÄÓÚ2019.3*
+//FangShiRui ä¿®æ”¹äºŽ2019.3*
 
 #include "BalanceCar.h"
 
 void BalanceCar::pwma(float angle, float angle6, int Pin1, int Pin2, int Pin3, int Pin4, int PinPWMA, int PinPWMB)
 {
 
-    pwm1 = -angleoutput; //×ó²àµç»ú¿ØÖÆÁ¿
-    pwm2 = -angleoutput; //ÓÒ²àµç»ú¿ØÖÆÁ¿
+    pwm1 = -angleoutput; //å·¦ä¾§ç”µæœºæŽ§åˆ¶é‡
+    pwm2 = -angleoutput; //å³ä¾§ç”µæœºæŽ§åˆ¶é‡
 
-    //ÉèÖÃ·ùÖµÏÞÖÆ
+    //è®¾ç½®å¹…å€¼é™åˆ¶
     if (pwm1 > 255)
         pwm1 = 255;
     if (pwm1 < -255)
@@ -19,34 +19,27 @@ void BalanceCar::pwma(float angle, float angle6, int Pin1, int Pin2, int Pin3, i
     if (pwm2 < -255)
         pwm2 = -255;
 
-    //ÉèÖÃÍ£×ª¸©Ñö½ÇºÍÍ£×ª·­×ª½Ç
-    if (angle > 30 || angle < -30 || angle6 < -10 || angle6 > 10)
-    {
+    //è®¾ç½®åœè½¬ä¿¯ä»°è§’å’Œåœè½¬ç¿»è½¬è§’
+    if (angle > 30 || angle < -30 || angle6 < -10 || angle6 > 10) {
         pwm1 = 0;
         pwm2 = 0;
     }
 
-    if (pwm1 >= 0)
-    {
+    if (pwm1 >= 0) {
         digitalWrite(Pin2, 0);
         digitalWrite(Pin1, 1);
         analogWrite(PinPWMA, pwm1);
-    }
-    else
-    {
+    } else {
         digitalWrite(Pin2, 1);
         digitalWrite(Pin1, 0);
         analogWrite(PinPWMA, -pwm1);
     }
 
-    if (pwm2 >= 0)
-    {
+    if (pwm2 >= 0) {
         digitalWrite(Pin4, 0);
         digitalWrite(Pin3, 1);
         analogWrite(PinPWMB, pwm2);
-    }
-    else
-    {
+    } else {
         digitalWrite(Pin4, 1);
         digitalWrite(Pin3, 0);
         analogWrite(PinPWMB, -pwm2);

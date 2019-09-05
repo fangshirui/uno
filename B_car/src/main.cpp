@@ -1,23 +1,23 @@
 /********
-FangShiRui ĞŞ¸ÄÓÚ2019.3
+FangShiRui ä¿®æ”¹äº2019.3
 *********/
-#include "MsTimer2.h" //¶¨Ê±ÖĞ¶Ï¿â
-#include "PinChangeInt.h" // Íâ²¿ÖĞ¶ÏÍØÕ¹¿â
+#include "MsTimer2.h" //å®šæ—¶ä¸­æ–­åº“
+#include "PinChangeInt.h" // å¤–éƒ¨ä¸­æ–­æ‹“å±•åº“
 #include <Arduino.h>
-//ÀûÓÃ²âËÙÂëÅÌ¼ÆÊıÊµÏÖËÙ¶ÈPID¿ØÖÆ
+//åˆ©ç”¨æµ‹é€Ÿç ç›˜è®¡æ•°å®ç°é€Ÿåº¦PIDæ§åˆ¶
 #include "KalmanFilter.h"
 #include <BalanceCar.h>
-//I2Cdev¡¢MPU6050ºÍPID_v1Àà¿âĞèÒªÊÂÏÈ°²×°ÔÚArduino Àà¿âÎÄ¼ş¼ĞÏÂ
+//I2Cdevã€MPU6050å’ŒPID_v1ç±»åº“éœ€è¦äº‹å…ˆå®‰è£…åœ¨Arduino ç±»åº“æ–‡ä»¶å¤¹ä¸‹
 #include "I2Cdev.h"
 // #include "MPU6050_6Axis_MotionApps20.h"
 #include "MPU6050.h"
 #include "Wire.h"
 
-MPU6050 mpu; //ÊµÀı»¯Ò»¸ö MPU6050 ¶ÔÏó£¬¶ÔÏóÃû³ÆÎª mpu
-BalanceCar balancecar; // ÊµÀı»¯Ò»¸öÃûÎªbalancecar µÄ¶ÔÏó
+MPU6050 mpu; //å®ä¾‹åŒ–ä¸€ä¸ª MPU6050 å¯¹è±¡ï¼Œå¯¹è±¡åç§°ä¸º mpu
+BalanceCar balancecar; // å®ä¾‹åŒ–ä¸€ä¸ªåä¸ºbalancecar çš„å¯¹è±¡
 KalmanFilter kalmanfilter;
-int16_t ax, ay, az, gx, gy, gz; //Ë«×Ö½ÚÕûÊı
-//TB6612FNGÇı¶¯Ä£¿é¿ØÖÆĞÅºÅ
+int16_t ax, ay, az, gx, gy, gz; //åŒå­—èŠ‚æ•´æ•°
+//TB6612FNGé©±åŠ¨æ¨¡å—æ§åˆ¶ä¿¡å·
 #define IN1M 7
 #define IN2M 6
 #define IN3M 13
@@ -26,63 +26,63 @@ int16_t ax, ay, az, gx, gy, gz; //Ë«×Ö½ÚÕûÊı
 #define PWMB 10
 #define STBY 8
 
-//ÉùÃ÷×Ô¶¨Òå±äÁ¿
+//å£°æ˜è‡ªå®šä¹‰å˜é‡
 
-double kp = 38, ki = 0.0, kd = 0.58; //Æ½ºâpidÖµ£¬¿Éµ÷
+double kp = 38, ki = 0.0, kd = 0.58; //å¹³è¡¡pidå€¼ï¼Œå¯è°ƒ
 
-float K1 = 0.05; // ¶Ô¼ÓËÙ¶È¼ÆÈ¡ÖµµÄÈ¨ÖØ,Ò»½×ÂË²¨µÄ²ÎÊı
+float K1 = 0.05; // å¯¹åŠ é€Ÿåº¦è®¡å–å€¼çš„æƒé‡,ä¸€é˜¶æ»¤æ³¢çš„å‚æ•°
 
-float angle0 = 0.00; //»úĞµÆ½ºâ½Ç
+float angle0 = 0.00; //æœºæ¢°å¹³è¡¡è§’
 
-/////////////////////¿¨¶ûÂüÂË²¨²ÎÊı/////////////////////////////
+/////////////////////å¡å°”æ›¼æ»¤æ³¢å‚æ•°/////////////////////////////
 
-float Q_angle = 0.001, Q_gyro = 0.005; //½Ç¶ÈÊı¾İÖÃĞÅ¶È,½ÇËÙ¶ÈÊı¾İÖÃĞÅ¶È
+float Q_angle = 0.001, Q_gyro = 0.005; //è§’åº¦æ•°æ®ç½®ä¿¡åº¦,è§’é€Ÿåº¦æ•°æ®ç½®ä¿¡åº¦
 float R_angle = 0.5, C_0 = 1;
 
-/////////////////////¿¨¶ûÂüÂË²¨²ÎÊı/////////////////////////////
+/////////////////////å¡å°”æ›¼æ»¤æ³¢å‚æ•°/////////////////////////////
 
-float timeChange = 5; //ÂË²¨·¨²ÉÑùÊ±¼ä¼ä¸ôºÁÃë
-float dt = timeChange * 0.001; //×¢Òâ£ºdtµÄÈ¡ÖµÎªÂË²¨Æ÷²ÉÑùÊ±¼ä
+float timeChange = 5; //æ»¤æ³¢æ³•é‡‡æ ·æ—¶é—´é—´éš”æ¯«ç§’
+float dt = timeChange * 0.001; //æ³¨æ„ï¼šdtçš„å–å€¼ä¸ºæ»¤æ³¢å™¨é‡‡æ ·æ—¶é—´
 
-//////////////////½Ç¶ÈPD////////////////////
+//////////////////è§’åº¦PD////////////////////
 void angleout()
 {
-    balancecar.angleoutput = kp * (kalmanfilter.angle + angle0) + kd * kalmanfilter.Gyro_x; //PD ½Ç¶È»·¿ØÖÆ,£¿£¿.angleËµÃ÷ÊÇkalmanfilter¶ÔÏóÖĞµÄÊôĞÔ£¬
+    balancecar.angleoutput = kp * (kalmanfilter.angle + angle0) + kd * kalmanfilter.Gyro_x; //PD è§’åº¦ç¯æ§åˆ¶,ï¼Ÿï¼Ÿ.angleè¯´æ˜æ˜¯kalmanfilterå¯¹è±¡ä¸­çš„å±æ€§ï¼Œ
 }
-//////////////////½Ç¶ÈPD////////////////////
+//////////////////è§’åº¦PD////////////////////
 
 //////////////////////////////////////////////////////////
-//////////////////ÖĞ¶Ï¶¨Ê± 5ms¶¨Ê±ÖĞ¶Ï////////////////////
+//////////////////ä¸­æ–­å®šæ—¶ 5mså®šæ—¶ä¸­æ–­////////////////////
 /////////////////////////////////////////////////////////
 void inter()
 
 {
 
-    sei(); //ÒâÒåÓ¦¸ÃÊÇ´ò¿ªËùÓĞµÄÖĞ¶Ï¡£Àí½âÎªÖĞ¶ÏµÄ³õÊ¼»¯¡£Èô²»ÓÃ¸Ãº¯Êı£¬»áÓ°ÏìmpuµÄÊı¾İ»ñÈ¡
-    mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz); //IIC»ñÈ¡MPU6050ÁùÖáÊı¾İ ax ay az gx gy gz
-    kalmanfilter.Angletest(ax, ay, az, gx, gy, gz, dt, Q_angle, Q_gyro, R_angle, C_0, K1); //µÃµ½¾­¹ı¿¨¶ûÂüÂË²¨µÄ¸©Ñö½Çangle£¬ºÍ»ù±¾µÄ¸©Ñö½Ç½ÇËÙ¶È
-    angleout(); //µÃµ½½Ç¶È»·µÄ¿ØÖÆÁ¿banlancecar.angleoutput
+    sei(); //æ„ä¹‰åº”è¯¥æ˜¯æ‰“å¼€æ‰€æœ‰çš„ä¸­æ–­ã€‚ç†è§£ä¸ºä¸­æ–­çš„åˆå§‹åŒ–ã€‚è‹¥ä¸ç”¨è¯¥å‡½æ•°ï¼Œä¼šå½±å“mpuçš„æ•°æ®è·å–
+    mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz); //IICè·å–MPU6050å…­è½´æ•°æ® ax ay az gx gy gz
+    kalmanfilter.Angletest(ax, ay, az, gx, gy, gz, dt, Q_angle, Q_gyro, R_angle, C_0, K1); //å¾—åˆ°ç»è¿‡å¡å°”æ›¼æ»¤æ³¢çš„ä¿¯ä»°è§’angleï¼Œå’ŒåŸºæœ¬çš„ä¿¯ä»°è§’è§’é€Ÿåº¦
+    angleout(); //å¾—åˆ°è§’åº¦ç¯çš„æ§åˆ¶é‡banlancecar.angleoutput
 
-    balancecar.pwma(kalmanfilter.angle, kalmanfilter.angle6, IN1M, IN2M, IN3M, IN4M, PWMA, PWMB); //Ğ¡³µ×ÜPWMÊä³ö
+    balancecar.pwma(kalmanfilter.angle, kalmanfilter.angle6, IN1M, IN2M, IN3M, IN4M, PWMA, PWMB); //å°è½¦æ€»PWMè¾“å‡º
 }
 //////////////////////////////////////////////////////////
-//////////////////ÖĞ¶Ï¶¨Ê± 5ms¶¨Ê±ÖĞ¶Ï///////////////////
+//////////////////ä¸­æ–­å®šæ—¶ 5mså®šæ—¶ä¸­æ–­///////////////////
 /////////////////////////////////////////////////////////
 
-// ===    ³õÊ¼ÉèÖÃ     ===
+// ===    åˆå§‹è®¾ç½®     ===
 void setup()
 {
-    // TB6612FNGNÇı¶¯Ä£¿é¿ØÖÆĞÅºÅ³õÊ¼»¯
+    // TB6612FNGNé©±åŠ¨æ¨¡å—æ§åˆ¶ä¿¡å·åˆå§‹åŒ–
 
-    pinMode(IN1M, OUTPUT); //¿ØÖÆµç»ú1µÄ·½Ïò£¬01ÎªÕı×ª£¬10Îª·´×ª
+    pinMode(IN1M, OUTPUT); //æ§åˆ¶ç”µæœº1çš„æ–¹å‘ï¼Œ01ä¸ºæ­£è½¬ï¼Œ10ä¸ºåè½¬
     pinMode(IN2M, OUTPUT);
-    pinMode(IN3M, OUTPUT); //¿ØÖÆµç»ú2µÄ·½Ïò£¬01ÎªÕı×ª£¬10Îª·´×ª
+    pinMode(IN3M, OUTPUT); //æ§åˆ¶ç”µæœº2çš„æ–¹å‘ï¼Œ01ä¸ºæ­£è½¬ï¼Œ10ä¸ºåè½¬
     pinMode(IN4M, OUTPUT);
-    pinMode(PWMA, OUTPUT); //×óµç»úPWM
-    pinMode(PWMB, OUTPUT); //ÓÒµç»úPWM
-    pinMode(STBY, OUTPUT); //TB6612FNGÊ¹ÄÜ
+    pinMode(PWMA, OUTPUT); //å·¦ç”µæœºPWM
+    pinMode(PWMB, OUTPUT); //å³ç”µæœºPWM
+    pinMode(STBY, OUTPUT); //TB6612FNGä½¿èƒ½
 
-    //³õÊ¼»¯µç»úÇı¶¯Ä£¿é
+    //åˆå§‹åŒ–ç”µæœºé©±åŠ¨æ¨¡å—
     digitalWrite(IN1M, 0);
     digitalWrite(IN2M, 1);
     digitalWrite(IN3M, 1);
@@ -93,22 +93,22 @@ void setup()
 
     ;
 
-    // ¼ÓÈëI2C×ÜÏß
-    Wire.begin(); //¼ÓÈë I2C ×ÜÏßĞòÁĞ
-    Serial.begin(9600); //¿ªÆô´®¿Ú£¬ÉèÖÃ²¨ÌØÂÊÎª 115200
+    // åŠ å…¥I2Cæ€»çº¿
+    Wire.begin(); //åŠ å…¥ I2C æ€»çº¿åºåˆ—
+    Serial.begin(9600); //å¼€å¯ä¸²å£ï¼Œè®¾ç½®æ³¢ç‰¹ç‡ä¸º 115200
     delay(1500);
-    mpu.initialize(); //³õÊ¼»¯MPU6050
+    mpu.initialize(); //åˆå§‹åŒ–MPU6050
     delay(2);
     balancecar.pwm1 = 0;
     balancecar.pwm2 = 0;
-    //5ms¶¨Ê±ÖĞ¶ÏÉèÖÃ  Ê¹ÓÃtimer2    ×¢Òâ£ºÊ¹ÓÃtimer2»á¶Ôpin3 pin11µÄPWMÊä³öÓĞÓ°Ïì£¬ÒòÎªPWMÊ¹ÓÃµÄÊÇ¶¨Ê±Æ÷¿ØÖÆÕ¼¿Õ±È£¬ËùÒÔÔÚÊ¹ÓÃtimerµÄÊ±ºòÒª×¢Òâ²é¿´¶ÔÓ¦timerµÄpin¿Ú¡£
-    MsTimer2::set(5, inter); // ÉèÖÃ¶¨Ê±ÖĞ¶Ï£¬5msÖ´ĞĞÒ»´Îinterº¯Êı
-    MsTimer2::start(); //¶¨Ê±ÖĞ¶Ï¿ªÊ¼¼ÆÊ±
+    //5mså®šæ—¶ä¸­æ–­è®¾ç½®  ä½¿ç”¨timer2    æ³¨æ„ï¼šä½¿ç”¨timer2ä¼šå¯¹pin3 pin11çš„PWMè¾“å‡ºæœ‰å½±å“ï¼Œå› ä¸ºPWMä½¿ç”¨çš„æ˜¯å®šæ—¶å™¨æ§åˆ¶å ç©ºæ¯”ï¼Œæ‰€ä»¥åœ¨ä½¿ç”¨timerçš„æ—¶å€™è¦æ³¨æ„æŸ¥çœ‹å¯¹åº”timerçš„pinå£ã€‚
+    MsTimer2::set(5, inter); // è®¾ç½®å®šæ—¶ä¸­æ–­ï¼Œ5msæ‰§è¡Œä¸€æ¬¡interå‡½æ•°
+    MsTimer2::start(); //å®šæ—¶ä¸­æ–­å¼€å§‹è®¡æ—¶
 }
 
 ////////////////////////////////////////turn//////////////////////////////////
 
-// ===       Ö÷Ñ­»·³ÌĞòÌå       ===
+// ===       ä¸»å¾ªç¯ç¨‹åºä½“       ===
 void loop()
 {
     attachInterrupt(0, );
