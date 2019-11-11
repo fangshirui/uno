@@ -1,5 +1,5 @@
 /********
-FangShiRui ĞŞ¸ÄÓÚ2019.3
+FangShiRui ä¿®æ”¹äº2019.3
 *********/
 
 #ifndef KalmanFilter_h
@@ -11,16 +11,15 @@ FangShiRui ĞŞ¸ÄÓÚ2019.3
 #include <WProgram.h>
 #endif
 
-class KalmanFilter
-{
+class KalmanFilter {
 public:
-    void Yiorderfilter(float angle_m, float gyro_m, float dt, float K1);
-    void Kalman_Filter(double angle_m, double gyro_m, float dt, float Q_angle, float Q_gyro, float R_angle, float C_0);
-    void Angletest(int16_t ax, int16_t ay, int16_t az, int16_t gx, int16_t gy, int16_t gz, float dt, float Q_angle, float Q_gyro,
-        float R_angle, float C_0, float K1);
-    float Gyro_x, Gyro_y, Gyro_z; // ¼òµ¥µÃµ½3¸öÖáµÄ½ÇËÙ¶È£¬Î´¾­¹ıÂË²¨´¦Àí
+    void  Yiorderfilter(float angle_m, float gyro_m, float dt, float K1);
+    void  Kalman_Filter(double angle_m, double gyro_m, float dt, float Q_angle, float Q_gyro, float R_angle, float C_0);
+    void  Angletest(int16_t ax, int16_t ay, int16_t az, int16_t gx, int16_t gy, int16_t gz, float dt, float Q_angle, float Q_gyro,
+         float R_angle, float C_0, float K1);
+    float Gyro_x, Gyro_y, Gyro_z;   // ç®€å•å¾—åˆ°3ä¸ªè½´çš„è§’é€Ÿåº¦ï¼Œæœªç»è¿‡æ»¤æ³¢å¤„ç†
     //   float accelz = 0;
-    float angle; //ÕâÀï¶¨ÒåÁËÒ»Ğ©¶ÔÏóµÄÊôĞÔ£¬°üÀ¨¿¨¶ûÂüÂË²¨µÃµ½µÄ×îÖÕ¸©Ñö½Çangle£¬Ò»½×ÂË²¨µÃµ½µÄ×îÖÕ·­¹ö·­¹ö½Çangle6£¬
+    float angle;   //è¿™é‡Œå®šä¹‰äº†ä¸€äº›å¯¹è±¡çš„å±æ€§ï¼ŒåŒ…æ‹¬å¡å°”æ›¼æ»¤æ³¢å¾—åˆ°çš„æœ€ç»ˆä¿¯ä»°è§’angleï¼Œä¸€é˜¶æ»¤æ³¢å¾—åˆ°çš„æœ€ç»ˆç¿»æ»šç¿»æ»šè§’angle6ï¼Œ
     float angle6;
 
 private:
