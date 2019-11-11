@@ -1,98 +1,98 @@
 /********
-FangShiRui ĞŞ¸ÄÓÚ2019.3
+FangShiRui ä¿®æ”¹äº2019.3
 *********/
-#include "MsTimer2.h"       //¶¨Ê±ÖĞ¶Ï¿â
-#include "PinChangeInt.h"   // Íâ²¿ÖĞ¶ÏÍØÕ¹¿â
+#include "MsTimer2.h"       //å®šæ—¶ä¸­æ–­åº“
+#include "PinChangeInt.h"   // å¤–éƒ¨ä¸­æ–­æ‹“å±•åº“
 #include <Arduino.h>
-//ÀûÓÃ²âËÙÂëÅÌ¼ÆÊıÊµÏÖËÙ¶ÈPID¿ØÖÆ
+//åˆ©ç”¨æµ‹é€Ÿç ç›˜è®¡æ•°å®ç°é€Ÿåº¦PIDæ§åˆ¶
 #include "KalmanFilter.h"
 #include <BalanceCar.h>
-//I2Cdev¡¢MPU6050ºÍPID_v1Àà¿âĞèÒªÊÂÏÈ°²×°ÔÚArduino Àà¿âÎÄ¼ş¼ĞÏÂ
+//I2Cdevã€MPU6050å’ŒPID_v1ç±»åº“éœ€è¦äº‹å…ˆå®‰è£…åœ¨Arduino ç±»åº“æ–‡ä»¶å¤¹ä¸‹
 #include "I2Cdev.h"
 // #include "MPU6050_6Axis_MotionApps20.h"
 #include "MPU6050.h"
 #include "Wire.h"
 
-MPU6050      mpu;          //ÊµÀı»¯Ò»¸ö MPU6050¶ÔÏó£¬¶ÔÏóÃû³ÆÎª mpu
-BalanceCar   balancecar;   // ÊµÀı»¯Ò»¸öÃûÎªbalancecar µÄ¶ÔÏó
+MPU6050      mpu;          //å®ä¾‹åŒ–ä¸€ä¸ª MPU6050å¯¹è±¡ï¼Œå¯¹è±¡åç§°ä¸º mpu
+BalanceCar   balancecar;   // å®ä¾‹åŒ–ä¸€ä¸ªåä¸ºbalancecar çš„å¯¹è±¡
 KalmanFilter kalmanfilter;
-int16_t      ax, ay, az;   // x,y,z·½ÏòµÄ¼ÓËÙ¶È
-int16_t      gx, gy, gz;   // x,y,z·½ÏòµÄ½Ç¼ÓËÙ¶È£¬
+int16_t      ax, ay, az;   // x,y,zæ–¹å‘çš„åŠ é€Ÿåº¦
+int16_t      gx, gy, gz;   // x,y,zæ–¹å‘çš„è§’åŠ é€Ÿåº¦ï¼Œ
 
-//TB6612FNGÇı¶¯Ä£¿é¿ØÖÆĞÅºÅ
-#define IN1M 7    //ÓÒµç»ú¿ØÖÆ¶Ë¿Ú IN1
-#define IN2M 6    //ÓÒµç»ú¿ØÖÆ¶Ë¿Ú IN2
-#define IN3M 13   //×óµç»ú¿ØÖÆ¶Ë¿Ú IN1
-#define IN4M 12   //×óµç»ú¿ØÖÆ¶Ë¿Ú IN2
-#define PWMA 9    //ÓÒµç»úPWM¶Ë¿Ú
-#define PWMB 10   //×óµç»úPWM¶Ë¿Ú
-#define STBY 8    //standby ¶Ë¿Ú£¬ÖÃÁãÔòµç»úÍ£Ö¹
+//TB6612FNGé©±åŠ¨æ¨¡å—æ§åˆ¶ä¿¡å·
+#define IN1M 7    //å³ç”µæœºæ§åˆ¶ç«¯å£ IN1
+#define IN2M 6    //å³ç”µæœºæ§åˆ¶ç«¯å£ IN2
+#define IN3M 13   //å·¦ç”µæœºæ§åˆ¶ç«¯å£ IN1
+#define IN4M 12   //å·¦ç”µæœºæ§åˆ¶ç«¯å£ IN2
+#define PWMA 9    //å³ç”µæœºPWMç«¯å£
+#define PWMB 10   //å·¦ç”µæœºPWMç«¯å£
+#define STBY 8    //standby ç«¯å£ï¼Œç½®é›¶åˆ™ç”µæœºåœæ­¢
 
-// ÂëÅÌÖĞ¶Ï¶Ë¿ÚºÅ
-#define PinA_left 2    // ×Ô´øµÄÍâ²¿ÖĞ¶Ï0 £¬ÓÅÏÈ¼¶ºÜ¸ß£¬¶Ë¿ÚÔÚD2
-#define PinA_right 4   // ÓÃ»§Éè¶¨Íâ²¿ÖĞ¶Ï£¬ ¶Ë¿ÚÔÚD4
+// ç ç›˜ä¸­æ–­ç«¯å£å·
+#define PinA_left 2    // è‡ªå¸¦çš„å¤–éƒ¨ä¸­æ–­0 ï¼Œä¼˜å…ˆçº§å¾ˆé«˜ï¼Œç«¯å£åœ¨D2
+#define PinA_right 4   // ç”¨æˆ·è®¾å®šå¤–éƒ¨ä¸­æ–­ï¼Œ ç«¯å£åœ¨D4
 
-//* ÉùÃ÷×Ô¶¨Òå±äÁ¿
-double kp = 38, ki = 0.0, kd = 0.58;                        //Æ½ºâpidÖµ£¬¿Éµ÷
-double kp_speed = 3.5, ki_speed = 0.1058, kd_speed = 0.0;   // ËÙ¶ÈpidÖµ
+//* å£°æ˜è‡ªå®šä¹‰å˜é‡
+double kp = 38, ki = 0.0, kd = 0.58;                        //å¹³è¡¡pidå€¼ï¼Œå¯è°ƒ
+double kp_speed = 3.5, ki_speed = 0.1058, kd_speed = 0.0;   // é€Ÿåº¦pidå€¼
 
-//* ´«¸ĞÆ÷Êı¾İ
-float K1     = 0.05;   // ¶Ô¼ÓËÙ¶È¼ÆÈ¡ÖµµÄÈ¨ÖØ,Ò»½×ÂË²¨µÄ²ÎÊı
-float angle0 = 0.00;   //»úĞµÆ½ºâ½Ç
+//* ä¼ æ„Ÿå™¨æ•°æ®
+float K1     = 0.05;   // å¯¹åŠ é€Ÿåº¦è®¡å–å€¼çš„æƒé‡,ä¸€é˜¶æ»¤æ³¢çš„å‚æ•°
+float angle0 = 0.00;   //æœºæ¢°å¹³è¡¡è§’
 
-//* ¿¨¶ûÂüÂË²¨²ÎÊı
-float Q_angle = 0.001, Q_gyro = 0.005;   //½Ç¶ÈÊı¾İÖÃĞÅ¶È,½ÇËÙ¶ÈÊı¾İÖÃĞÅ¶È
+//* å¡å°”æ›¼æ»¤æ³¢å‚æ•°
+float Q_angle = 0.001, Q_gyro = 0.005;   //è§’åº¦æ•°æ®ç½®ä¿¡åº¦,è§’é€Ÿåº¦æ•°æ®ç½®ä¿¡åº¦
 float R_angle = 0.5, C_0 = 1;
 
-float timeChange = 5;                    //ÂË²¨·¨²ÉÑùÊ±¼ä¼ä¸ôºÁÃë
-float dt         = timeChange * 0.001;   //×¢Òâ£ºdtµÄÈ¡ÖµÎªÂË²¨Æ÷²ÉÑùÊ±¼ä
+float timeChange = 5;                    //æ»¤æ³¢æ³•é‡‡æ ·æ—¶é—´é—´éš”æ¯«ç§’
+float dt         = timeChange * 0.001;   //æ³¨æ„ï¼šdtçš„å–å€¼ä¸ºæ»¤æ³¢å™¨é‡‡æ ·æ—¶é—´
 
-//* ËÙ¶ÈÁ¿
-volatile long count_right = 0;   //ÓÒ²àÂö³åÊıÁ¿£¬Ò»¸öÖÜÆÚ¹éÁã£¬
-volatile long count_left  = 0;   // ×ó²àÂö³åÊıÁ¿£¬Ò»¸öÖÜÆÚ¹éÁã£¬
-int           speedcc     = 0;   //ËÙ¶È»·Ê±¼äÖÜÆÚ¼ÆÊıÁ¿£¬ÀÛ»ıµ½8 Ôò40msÖÜÆÚ
+//* é€Ÿåº¦é‡
+volatile long count_right = 0;   //å³ä¾§è„‰å†²æ•°é‡ï¼Œä¸€ä¸ªå‘¨æœŸå½’é›¶ï¼Œ
+volatile long count_left  = 0;   // å·¦ä¾§è„‰å†²æ•°é‡ï¼Œä¸€ä¸ªå‘¨æœŸå½’é›¶ï¼Œ
+int           speedcc     = 0;   //é€Ÿåº¦ç¯æ—¶é—´å‘¨æœŸè®¡æ•°é‡ï¼Œç´¯ç§¯åˆ°8 åˆ™40mså‘¨æœŸ
 
-//* Âö³å¼ÆËãÏà¹Ø²ÎÊı
-int rpluse = 0;   // ´øÕı¸ººÅµÄµ±Ç°ÖÜÆÚÓÒ²àÂö³åÊıÁ¿
-int lpluse = 0;   // ´øÕı¸ººÅµÄµ±Ç°ÖÜÆÚ×ó²àÂö³åÊıÁ¿
-// int sumam;        // ÀúÊ·ËùÓĞÖÜÆÚ£¬×óÓÒÂö³åÊıÁ¿´øÕı¸ººÅµÄ×ÜºÍ
+//* è„‰å†²è®¡ç®—ç›¸å…³å‚æ•°
+int rpluse = 0;   // å¸¦æ­£è´Ÿå·çš„å½“å‰å‘¨æœŸå³ä¾§è„‰å†²æ•°é‡
+int lpluse = 0;   // å¸¦æ­£è´Ÿå·çš„å½“å‰å‘¨æœŸå·¦ä¾§è„‰å†²æ•°é‡
+// int sumam;        // å†å²æ‰€æœ‰å‘¨æœŸï¼Œå·¦å³è„‰å†²æ•°é‡å¸¦æ­£è´Ÿå·çš„æ€»å’Œ
 
-//* ½Ç¶ÈPD
+//* è§’åº¦PD
 void angleout()
 {
-    //PD ½Ç¶È»·¿ØÖÆ,angleËµÃ÷ÊÇkalmanfilter¶ÔÏóÖĞµÄÊôĞÔ£¬
+    //PD è§’åº¦ç¯æ§åˆ¶,angleè¯´æ˜æ˜¯kalmanfilterå¯¹è±¡ä¸­çš„å±æ€§ï¼Œ
     balancecar.angleoutput = kp * (kalmanfilter.angle + angle0) + kd * kalmanfilter.Gyro_x;
 }
 
 void countpulse();
 
-//* ÖĞ¶Ï¶¨Ê± 5ms
+//* ä¸­æ–­å®šæ—¶ 5ms
 void inter()
 {
 
-    //ÒâÒåÓ¦¸ÃÊÇ´ò¿ªËùÓĞµÄÖĞ¶Ï¡£Àí½âÎªÖĞ¶ÏµÄ³õÊ¼»¯¡£Èô²»ÓÃ¸Ãº¯Êı£¬»áÓ°ÏìmpuµÄÊı¾İ»ñÈ¡
+    //æ„ä¹‰åº”è¯¥æ˜¯æ‰“å¼€æ‰€æœ‰çš„ä¸­æ–­ã€‚ç†è§£ä¸ºä¸­æ–­çš„åˆå§‹åŒ–ã€‚è‹¥ä¸ç”¨è¯¥å‡½æ•°ï¼Œä¼šå½±å“mpuçš„æ•°æ®è·å–
     sei();
 
-    // ¼ÆËãÂö³å
+    // è®¡ç®—è„‰å†²
     countpulse();
 
-    //IIC»ñÈ¡MPU6050ÁùÖáÊı¾İ ax ay az gx gy gz
+    //IICè·å–MPU6050å…­è½´æ•°æ® ax ay az gx gy gz
     mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
-    //µÃµ½¾­¹ı¿¨¶ûÂüÂË²¨µÄ¸©Ñö½Çangle£¬ºÍ»ù±¾µÄ¸©Ñö½Ç½ÇËÙ¶È
+    //å¾—åˆ°ç»è¿‡å¡å°”æ›¼æ»¤æ³¢çš„ä¿¯ä»°è§’angleï¼Œå’ŒåŸºæœ¬çš„ä¿¯ä»°è§’è§’é€Ÿåº¦
     kalmanfilter.Angletest(ax, ay, az, gx, gy, gz, dt, Q_angle, Q_gyro, R_angle, C_0, K1);
 
-    //µÃµ½½Ç¶È»·µÄ¿ØÖÆÁ¿banlancecar.angleoutput
+    //å¾—åˆ°è§’åº¦ç¯çš„æ§åˆ¶é‡banlancecar.angleoutput
     angleout();
 
-    // ËÙ¶È»·
+    // é€Ÿåº¦ç¯
     speedcc++;
     if (speedcc >= 8) {
         balancecar.speedpiout(kp_speed, ki_speed, kd_speed, 0);
         speedcc = 0;
     }
 
-    //Ğ¡³µ×ÜPWMÊä³ö
+    //å°è½¦æ€»PWMè¾“å‡º
     balancecar.pwma(kalmanfilter.angle, kalmanfilter.angle6, IN1M, IN2M, IN3M, IN4M, PWMA, PWMB);
 }
 
@@ -106,20 +106,20 @@ void code_right()
     count_right++;
 }
 
-// ===    ³õÊ¼ÉèÖÃ     ===
+// ===    åˆå§‹è®¾ç½®     ===
 void setup()
 {
-    // TB6612FNGNÇı¶¯Ä£¿é¿ØÖÆĞÅºÅ³õÊ¼»¯
+    // TB6612FNGNé©±åŠ¨æ¨¡å—æ§åˆ¶ä¿¡å·åˆå§‹åŒ–
 
-    pinMode(IN1M, OUTPUT);   //¿ØÖÆµç»ú1µÄ·½Ïò£¬01ÎªÕı×ª£¬10Îª·´×ª
+    pinMode(IN1M, OUTPUT);   //æ§åˆ¶ç”µæœº1çš„æ–¹å‘ï¼Œ01ä¸ºæ­£è½¬ï¼Œ10ä¸ºåè½¬
     pinMode(IN2M, OUTPUT);
-    pinMode(IN3M, OUTPUT);   //¿ØÖÆµç»ú2µÄ·½Ïò£¬01ÎªÕı×ª£¬10Îª·´×ª
+    pinMode(IN3M, OUTPUT);   //æ§åˆ¶ç”µæœº2çš„æ–¹å‘ï¼Œ01ä¸ºæ­£è½¬ï¼Œ10ä¸ºåè½¬
     pinMode(IN4M, OUTPUT);
-    pinMode(PWMA, OUTPUT);   //×óµç»úPWM
-    pinMode(PWMB, OUTPUT);   //ÓÒµç»úPWM
-    pinMode(STBY, OUTPUT);   //TB6612FNGÊ¹ÄÜ
+    pinMode(PWMA, OUTPUT);   //å·¦ç”µæœºPWM
+    pinMode(PWMB, OUTPUT);   //å³ç”µæœºPWM
+    pinMode(STBY, OUTPUT);   //TB6612FNGä½¿èƒ½
 
-    //³õÊ¼»¯µç»úÇı¶¯Ä£¿é
+    //åˆå§‹åŒ–ç”µæœºé©±åŠ¨æ¨¡å—
     digitalWrite(IN1M, 0);
     digitalWrite(IN2M, 1);
     digitalWrite(IN3M, 1);
@@ -128,37 +128,37 @@ void setup()
     analogWrite(PWMA, 0);
     analogWrite(PWMB, 0);
 
-    // ²âËÙÂëÅÌµÄÉè¶¨
+    // æµ‹é€Ÿç ç›˜çš„è®¾å®š
     pinMode(PinA_left, INPUT);
     pinMode(PinA_right, INPUT);
 
-    // ¼ÓÈëI2C×ÜÏß
-    Wire.begin();         //¼ÓÈë I2C ×ÜÏßĞòÁĞ
-    Serial.begin(9600);   //¿ªÆô´®¿Ú£¬ÉèÖÃ²¨ÌØÂÊÎª 9600
+    // åŠ å…¥I2Cæ€»çº¿
+    Wire.begin();         //åŠ å…¥ I2C æ€»çº¿åºåˆ—
+    Serial.begin(9600);   //å¼€å¯ä¸²å£ï¼Œè®¾ç½®æ³¢ç‰¹ç‡ä¸º 9600
     delay(1500);
-    mpu.initialize();   //³õÊ¼»¯MPU6050
+    mpu.initialize();   //åˆå§‹åŒ–MPU6050
     delay(2);
     balancecar.pwm1 = 0;
     balancecar.pwm2 = 0;
-    //5ms¶¨Ê±ÖĞ¶ÏÉèÖÃ  Ê¹ÓÃtimer2    ×¢Òâ£ºÊ¹ÓÃtimer2»á¶Ôpin3 pin11µÄPWMÊä³öÓĞÓ°Ïì£¬ÒòÎªPWMÊ¹ÓÃµÄÊÇ¶¨Ê±Æ÷¿ØÖÆÕ¼¿Õ±È£¬ËùÒÔÔÚÊ¹ÓÃtimerµÄÊ±ºòÒª×¢Òâ²é¿´¶ÔÓ¦timerµÄpin¿Ú¡£
-    MsTimer2::set(5, inter);   // ÉèÖÃ¶¨Ê±ÖĞ¶Ï£¬5msÖ´ĞĞÒ»´Îinterº¯Êı
-    MsTimer2::start();         //¶¨Ê±ÖĞ¶Ï¿ªÊ¼¼ÆÊ±
+    //5mså®šæ—¶ä¸­æ–­è®¾ç½®  ä½¿ç”¨timer2    æ³¨æ„ï¼šä½¿ç”¨timer2ä¼šå¯¹pin3 pin11çš„PWMè¾“å‡ºæœ‰å½±å“ï¼Œå› ä¸ºPWMä½¿ç”¨çš„æ˜¯å®šæ—¶å™¨æ§åˆ¶å ç©ºæ¯”ï¼Œæ‰€ä»¥åœ¨ä½¿ç”¨timerçš„æ—¶å€™è¦æ³¨æ„æŸ¥çœ‹å¯¹åº”timerçš„pinå£ã€‚
+    MsTimer2::set(5, inter);   // è®¾ç½®å®šæ—¶ä¸­æ–­ï¼Œ5msæ‰§è¡Œä¸€æ¬¡interå‡½æ•°
+    MsTimer2::start();         //å®šæ—¶ä¸­æ–­å¼€å§‹è®¡æ—¶
 }
 
 void loop()
 {
-    // Ñ­»·¼ì²â¼°µş¼ÓÂö³å£¬²â¶¨Ğ¡³µ³µËÙ
-    attachInterrupt(0, code_left, CHANGE);                      // Ê¹ÓÃ×Ô´ø0ºÅÖĞ¶Ï
-    attachPinChangeInterrupt(PinA_right, code_right, CHANGE);   // Ê¹ÓÃ×Ô¶¨Òå¶Ë¿ÚµÄÖĞ¶Ï
+    // å¾ªç¯æ£€æµ‹åŠå åŠ è„‰å†²ï¼Œæµ‹å®šå°è½¦è½¦é€Ÿ
+    attachInterrupt(0, code_left, CHANGE);                      // ä½¿ç”¨è‡ªå¸¦0å·ä¸­æ–­
+    attachPinChangeInterrupt(PinA_right, code_right, CHANGE);   // ä½¿ç”¨è‡ªå®šä¹‰ç«¯å£çš„ä¸­æ–­
 }
 
-//* Âö³å¼ÆËã
+//* è„‰å†²è®¡ç®—
 void countpulse()
 {
     lpluse = count_left;
     rpluse = count_right;
 
-    // ½«µ±Ç°ÖÜÆÚÂö³åÊı¹éÁã£¬½øĞĞÏÂÒ»ÖÜÆÚµÄÍ³¼Æ
+    // å°†å½“å‰å‘¨æœŸè„‰å†²æ•°å½’é›¶ï¼Œè¿›è¡Œä¸‹ä¸€å‘¨æœŸçš„ç»Ÿè®¡
     count_left  = 0;
     count_right = 0;
 
@@ -169,11 +169,11 @@ void countpulse()
         rpluse = -rpluse;
     }
 
-    // //ÌáÆğÅĞ¶Ï
+    // //æèµ·åˆ¤æ–­
     // balancecar.stopr += rpluse;
     // balancecar.stopl += lpluse;
 
-    //Ã¿5ms½øÈëÖĞ¶ÏÊ±£¬Âö³åÊıµş¼Ó
+    //æ¯5msè¿›å…¥ä¸­æ–­æ—¶ï¼Œè„‰å†²æ•°å åŠ 
     balancecar.pulseright += rpluse;
     balancecar.pulseleft += lpluse;
     // sumam = balancecar.pulseright + balancecar.pulseleft;
