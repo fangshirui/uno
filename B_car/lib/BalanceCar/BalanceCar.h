@@ -1,25 +1,23 @@
-/********
-FangShiRui 修改于2019.3
-*********/
 
 #ifndef BalanceCar_h // 防止二次调用这个文件
 #define BalanceCar_h
 
-/////////////////添加根本库函数//////////////////////////////////////////////////
 #include <Arduino.h>
-///////////////////////////////////////////////////////////////////////////////
 
 class BalanceCar {
 public:
-    void speedpiout(double kps, double kis, double kds, double p0);
+    void get_angleout(double kp, double ks, double kd, float angle, float gyro_x);
+    void get_speedout(double kps, double kis, double kds, double p0 = 0);
     void pwma(float angle, float angle5, int Pin1, int Pin2, int Pin3, int Pin4, int PinPWMA, int PinPWMB);
 
     int pulseright = 0;
     int pulseleft = 0;
-    double angleoutput = 0, speedoutput = 0;
-    double pwm1 = 0, pwm2 = 0;
+    double pwm_r = 0, pwm_l = 0;
 
 private:
+    double angleoutput = 0; // 角度环输出
+    double speedoutput = 0; // 速度环输出
+
     float speeds_filterold; // 速度滤波
     float positions; // 位置
     int turnmax = 0;

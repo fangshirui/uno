@@ -17,6 +17,8 @@ public:
     float Gyro_y = 0;   // 翻滚角 角速度 度/秒
     float angle  = 0;   //卡尔曼滤波得到的最终俯仰角angle，初始猜测为0度
     float angle6 = 0;   //一阶滤波得到的最终翻滚翻滚角angle6，
+    float m_angle = 0;
+    float m_angle6= 0;
 
 private:
     float angle_err, q_bias;

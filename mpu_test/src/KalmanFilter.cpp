@@ -1,9 +1,9 @@
 
 #include "./KalmanFilter.h"
 
-float KalmanFilter::Yiorderfilter(float est_angle, float m_angle, float m_gyro, float dt, float K1)
+float KalmanFilter::Yiorderfilter(float est_angle ,float me_angle, float m_gyro, float dt, float K1)
 {
-    est_angle = K1 * m_angle + (1 - K1) * (est_angle + m_gyro * dt);
+    est_angle = K1 * me_angle + (1 - K1) * (est_angle + m_gyro * dt);
     return est_angle;
 }
 
@@ -44,18 +44,20 @@ void KalmanFilter::Angletest(int16_t ax, int16_t ay, int16_t az, int16_t gx, int
     float C_0     = 1;
 
     // 角度计算公式，rad 1 = 57.3度,m_angle 为测量俯仰角
-    float m_angle = atan2(ay, az) * 57.3;
+    m_angle = atan2(ay, az) * 57.3 + 1.6;
 
-    // angle = Yiorderfilter(angle, m_angle, Gyro_x, dt, K1);
 
-    //卡尔曼滤波得到实时俯仰角，查看卡尔曼函数，最终俯仰角记为angle
+    //卡尔曼滤波得到实时俯仰角，查看卡尔曼函数，最终俯仰角记为angle，使用前一时刻的角速度
     Kalman_Filter(m_angle, Gyro_x, dt, Q_angle, Q_gyro, R_angle, C_0);
+    // angle = Yiorderfilter(angle,m_angle, Gyro_x, dt, K1);
 
     //角度转换,32768对应+250度,由此计算比例为131倍，这里减128.1的目的可能是为了减去初始的误差 ，Gyro_x为俯仰角速度 单位为 度/秒
-    Gyro_x = (gx) / 131;
+    Gyro_x = (gx) / 131;  // 更新当前角速度
 
     // m_angle6 为测量的翻滚角
-    float m_angle6 = atan2(ax, az) * 57.3;
+    m_angle6 = atan2(ax, az) * 57.3 - 4.8;
+
+    //使用前一时刻的角速度
     angle6         = Yiorderfilter(angle6, m_angle6, Gyro_y, dt, K1);
-    Gyro_y         = -gy / 131.0;   //翻滚角速度
+    Gyro_y         = -gy / 131.0;   //翻滚角速度更新
 }
