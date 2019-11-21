@@ -1,14 +1,11 @@
-#include "MsTimer2.h"       //定时中断库
-#include "PinChangeInt.h"   // 外部中断拓展库
-#include <Arduino.h>
-//利用测速码盘计数实现速度PID控制
+#include "BalanceCar.h"
 #include "KalmanFilter.h"
-#include <BalanceCar.h>
-//I2Cdev、MPU6050和PID_v1类库需要事先安装在Arduino 类库文件夹下
-#include "I2Cdev.h"
-// #include "MPU6050_6Axis_MotionApps20.h"
-#include "MPU6050.h"
-#include "Wire.h"
+#include <Arduino.h>
+#include <I2Cdev.h>
+#include <MPU6050.h>
+#include <MsTimer2.h>       //定时中断库
+#include <PinChangeInt.h>   //外部中断拓展库
+#include <Wire.h>
 
 //TB6612FNG驱动模块控制信号端口
 #define R_IN1 7    //右电机控制端口 IN1
@@ -30,12 +27,8 @@ int16_t      ax, ay, az;   // x,y,z方向的加速度
 int16_t      gx, gy, gz;   // x,y,z方向的角加速度，
 
 //* pid的设定值
-double kp = 38, ki = 0.0, kd = 1;                           //平衡pid值，可调
+double kp = 30, ki = 0.0, kd = 0.58;                        //平衡pid值，可调
 double kp_speed = 3.5, ki_speed = 0.1058, kd_speed = 0.0;   // 速度pid值
-
-//* 滤波参数
-float K1 = 0.05;
-float dt = 0.005;
 
 //* 脉冲计算相关参数
 volatile long count_right = 0;   // 右侧脉冲数量，一个周期(5ms)归零，
@@ -43,6 +36,10 @@ volatile long count_left  = 0;   // 左侧脉冲数量，一个周期(5ms)归零
 int           rpluse      = 0;   // 带正负号的当前周期右侧脉冲数量
 int           lpluse      = 0;   // 带正负号的当前周期左侧脉冲数量
 int           speedcc     = 0;   // 速度环时间周期计数量，累积到8 则40ms周期
+
+//* 报告上位机数据
+String upload;
+String str_angle, str_angle6, str_m_angle, str_m_angle6;
 
 void countpulse();
 
@@ -60,10 +57,10 @@ void inter()
     mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
     //得到经过卡尔曼滤波的俯仰角angle，和基本的俯仰角角速度
-    kalmanfilter.Angletest(ax, ay, az, gx, gy, dt, K1);
+    kalmanfilter.update(ax, ay, az, gx, gy, gz);
 
     //平衡车角度环计算
-    balancecar.get_angleout(kp, ki, kd, kalmanfilter.angle, kalmanfilter.Gyro_x);
+    balancecar.get_angleout(kp, ki, kd, kalmanfilter.angle1, kalmanfilter.gyro_x);
 
     //平衡车速度环计算
     speedcc++;
@@ -73,7 +70,7 @@ void inter()
     }
 
     //小车总PWM输出
-    balancecar.pwma(kalmanfilter.angle, kalmanfilter.angle6, R_IN1, R_IN2, L_IN1, L_IN2, R_PWM, L_PWM);
+    balancecar.pwma(kalmanfilter.angle1, kalmanfilter.angle6, R_IN1, R_IN2, L_IN1, L_IN2, R_PWM, L_PWM);
 }
 
 void code_left()
@@ -84,6 +81,13 @@ void code_left()
 void code_right()
 {
     count_right++;
+}
+
+String dToStr(double raw_data)
+{
+    char char_data[7];
+    dtostrf(raw_data, 3, 2, char_data);
+    return (String)char_data;
 }
 
 void setup()
@@ -112,8 +116,8 @@ void setup()
     pinMode(L_INTR, INPUT);
 
     // 加入I2C总线
-    Wire.begin();         //加入 I2C 总线序列
-    Serial.begin(9600);   //开启串口，设置波特率为 9600
+    Wire.begin();          //加入 I2C 总线序列
+    Serial.begin(38400);   //开启串口，设置波特率为38400
     delay(1500);
     mpu.initialize();   //初始化MPU6050
     delay(50);
@@ -129,10 +133,15 @@ void setup()
 
 void loop()
 {
+    str_angle    = dToStr(kalmanfilter.angle1);
+    str_angle6   = dToStr(kalmanfilter.angle6);
+    str_m_angle  = dToStr(kalmanfilter.m_angle);
+    str_m_angle6 = dToStr(kalmanfilter.m_angle6);
 
-    // Serial.println(String("") + "ax:" + ax + ",ay:" + ay + ",az" + az);
+    upload = str_angle + "," + str_angle6 + "," + str_m_angle + "," + str_m_angle6;
 
-    // delay(1000);
+    Serial.println(upload);
+    delay(8);
 }
 
 //* 脉冲计算

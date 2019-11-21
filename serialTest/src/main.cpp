@@ -1,22 +1,20 @@
 #include <Arduino.h>
 
-int led = 13;
-long count = 0;
-int incomingByte;
-int num1 = 0;
-boolean startBit = false;
+int     led   = 13;
+long    count = 0;
+int     incomingByte;
+int     num1            = 0;
+boolean startBit        = false;
 boolean newLineReceived = false;
-String inputString = "";
+String  inputString     = "";
 
-int mark = 2;
+int  mark = 2;
 void setup()
 {
     // put your setup code here, to run once:
     pinMode(led, OUTPUT);
     Serial.begin(9600);
-    
 }
-
 
 void loop()
 {
@@ -48,16 +46,16 @@ void loop()
         delay(20);
     }
 
-    inputString = "";
+    inputString     = "";
     newLineReceived = false;
 }
 
 void serialEvent()
 {
-    while (Serial.available()) { // 放在缓存区
-        incomingByte = Serial.read(); // 一个字节的读
+    while (Serial.available()) {        // 放在缓存区
+        incomingByte = Serial.read();   // 一个字节的读
         if (incomingByte == '$') {
-            num1 = 0;
+            num1     = 0;
             startBit = true;
         }
 
@@ -68,14 +66,14 @@ void serialEvent()
 
         if (startBit == true && incomingByte == '#') {
             newLineReceived = true;
-            startBit = false;
+            startBit        = false;
         }
 
         if (num1 > 3) {
-            num1 = 0;
-            startBit = false;
+            num1            = 0;
+            startBit        = false;
             newLineReceived = false;
-            inputString = "";
+            inputString     = "";
         }
     }
 }

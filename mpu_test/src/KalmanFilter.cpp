@@ -55,9 +55,9 @@ void KalmanFilter::Angletest(int16_t ax, int16_t ay, int16_t az, int16_t gx, int
     Gyro_x = (gx) / 131;  // 更新当前角速度
 
     // m_angle6 为测量的翻滚角
-    m_angle6 = atan2(ax, az) * 57.3 - 4.8;
+    m_angle6 = atan2(-ax, az) * 57.3 +3.1 ;
 
     //使用前一时刻的角速度
     angle6         = Yiorderfilter(angle6, m_angle6, Gyro_y, dt, K1);
-    Gyro_y         = -gy / 131.0;   //翻滚角速度更新
+    Gyro_y         = gy / 131.0;   //翻滚角速度更新
 }
