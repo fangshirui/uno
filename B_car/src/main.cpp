@@ -41,6 +41,12 @@ int           speedcc     = 0;   // 速度环时间周期计数量，累积到8 
 String upload;
 String str_angle, str_angle6, str_m_angle, str_m_angle6;
 
+//* 接收数据
+byte   in_byte       = 0;
+String in_string     = "";
+bool   new_line_flag = false;   // 前一次数据的结束标志
+bool   start_flag    = false;   // 数据传送开始标志
+
 void countpulse();
 
 //* 中断定时 5ms
@@ -70,7 +76,7 @@ void inter()
     }
 
     //小车总PWM输出
-    balancecar.pwma(kalmanfilter.angle1, kalmanfilter.angle6, R_IN1, R_IN2, L_IN1, L_IN2, R_PWM, L_PWM);
+    balancecar.get_pwm(kalmanfilter.angle1, kalmanfilter.angle6, R_IN1, R_IN2, L_IN1, L_IN2, R_PWM, L_PWM);
 }
 
 void code_left()
@@ -133,6 +139,7 @@ void setup()
 
 void loop()
 {
+    //* 上传数据
     str_angle    = dToStr(kalmanfilter.angle1);
     str_angle6   = dToStr(kalmanfilter.angle6);
     str_m_angle  = dToStr(kalmanfilter.m_angle);
@@ -141,6 +148,20 @@ void loop()
     upload = str_angle + "," + str_angle6 + "," + str_m_angle + "," + str_m_angle6;
 
     Serial.println(upload);
+
+    //* 接收数据
+    if (new_line_flag) {
+        if (in_string[1] == '0') {
+            balancecar.go_forward();
+        }
+        if (in_string[1] == '1') {
+            balancecar.go_back();
+        }
+        new_line_flag = false;
+        in_string     = "";
+        // Serial.println(in_string);
+    }
+
     delay(8);
 }
 
@@ -164,4 +185,35 @@ void countpulse()
     //每5ms进入中断时，脉冲数叠加
     balancecar.pulseright += rpluse;
     balancecar.pulseleft += lpluse;
+}
+
+// 数据接收中断
+int  in_str_len = 0;
+void serialEvent()
+{
+    while (Serial.available()) {
+        in_byte = Serial.read();
+        if (in_byte == '$') {
+            in_str_len = 0;
+            start_flag = true;
+        }
+
+        if (start_flag != true) {
+            break;
+        }
+        in_str_len++;
+        in_string += (char)in_byte;
+
+        if (in_byte == '#') {
+            new_line_flag = true;
+            start_flag    = false;
+        }
+
+        if (in_str_len >= 5) {
+            in_str_len    = 0;
+            start_flag    = false;
+            new_line_flag = false;
+            in_string     = "";
+        }
+    }
 }

@@ -9,16 +9,17 @@
 #endif
 #include <Kalman.h>
 
-class KalmanFilter: private Kalman {
+class KalmanFilter : private Kalman {
 public:
-    double angle1,angle6;
-    double gyro_x,gyro_y;
-    double m_angle, m_angle6;
+    double angle1, angle6;      // 俯仰角，翻转角 单位 度
+    double gyro_x, gyro_y;      // 俯仰角速度，翻转角速度 单位 度/s
+    double m_angle, m_angle6;   // 俯仰角原始数据，翻转角原始数据
     KalmanFilter();
-    void update(double ax,double ay, double az,double gx,double gy, double gz);
+    // 更新数据
+    void update(double ax, double ay, double az, double gx, double gy, double gz);
 
 private:
-    double dt;
-
+    double dt;   //中断间隔时间
+    double k1;   // 一阶滤波的测量值置信度
 };
 #endif
