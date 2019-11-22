@@ -1,3 +1,10 @@
+/*
+ * @Author: FangShiRui
+ * @Date: 2019-08-10 09:11:06
+ * @LastEditors: FangShiRui
+ * @LastEditTime: 2019-11-22 11:50:12
+ * @Description: 平衡车pid 输出 pwm 计算
+ */
 
 #include "BalanceCar.h"
 

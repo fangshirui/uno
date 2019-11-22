@@ -1,3 +1,10 @@
+/*
+ * @Author: FangShiRui
+ * @Date: 2019-08-10 09:11:06
+ * @LastEditors: FangShiRui
+ * @LastEditTime: 2019-11-22 11:54:27
+ * @Description: 传感器数据处理及滤波
+ */
 #include "KalmanFilter.h"
 
 // 使用默认的基类构造函数,对新的数据使用自定义的构造函数

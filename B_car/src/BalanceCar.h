@@ -1,3 +1,10 @@
+/*
+ * @Author: FangShiRui
+ * @Date: 2019-08-10 09:11:06
+ * @LastEditors: FangShiRui
+ * @LastEditTime: 2019-11-22 11:53:59
+ * @Description: pid计算 pwm
+ */
 
 #ifndef BalanceCar_h   // 防止二次调用这个文件
 #define BalanceCar_h

@@ -1,3 +1,10 @@
+/*
+ * @Author: FangShiRui
+ * @Date: 2019-08-10 09:11:06
+ * @LastEditors: FangShiRui
+ * @LastEditTime: 2019-11-22 11:54:50
+ * @Description: 传感器数据处理和滤波
+ */
 
 #ifndef KalmanFilter_h
 #define KalmanFilter_h
