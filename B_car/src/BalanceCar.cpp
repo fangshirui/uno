@@ -2,7 +2,7 @@
  * @Author: FangShiRui
  * @Date: 2019-08-10 09:11:06
  * @LastEditors: FangShiRui
- * @LastEditTime: 2019-11-22 11:50:12
+ * @LastEditTime: 2020-07-16 10:16:57
  * @Description: 平衡车pid 输出 pwm 计算
  */
 
@@ -16,12 +16,12 @@ void BalanceCar::get_angleout(double kp, double ki, double kd, float angle, floa
 void BalanceCar::get_speedout(double kps, double kis, double kds, double p0)
 {
     double speeds = (pulseleft + pulseright) * 1.0;
-    pulseright = pulseleft = 0;   //每次进行速度pi计算，都会给脉冲数置零，也即每隔40ms
+    pulseright = pulseleft = 0; //每次进行速度pi计算，都会给脉冲数置零，也即每隔40ms
 
     //* 一阶互补滤波
     speeds_filterold *= 0.7;
     double speeds_filter = speeds_filterold + speeds * 0.3;
-    speeds_filterold     = speeds_filter;
+    speeds_filterold = speeds_filter;
 
     // 位置量即所有周期（40ms）速度量的累加
     positions += speeds_filter;
@@ -35,8 +35,8 @@ void BalanceCar::get_speedout(double kps, double kis, double kds, double p0)
 void BalanceCar::get_pwm(float angle, float angle6, int R_IN1, int R_IN2, int L_IN1, int L_IN2, int R_PWM, int L_PWM)
 {
 
-    pwm_r = angleoutput - speedoutput;   //右侧电机控制量
-    pwm_l = angleoutput - speedoutput;   //左侧电机控制量
+    pwm_r = angleoutput - speedoutput; //右侧电机控制量
+    pwm_l = angleoutput - speedoutput; //左侧电机控制量
 
     //设置幅值限制
     if (pwm_r > 255)
