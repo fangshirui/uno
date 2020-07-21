@@ -2,11 +2,11 @@
  * @Author: FangShiRui
  * @Date: 2019-08-10 09:11:06
  * @LastEditors: FangShiRui
- * @LastEditTime: 2019-11-22 11:53:59
+ * @LastEditTime: 2020-07-16 10:39:10
  * @Description: pid计算 pwm
  */
 
-#ifndef BalanceCar_h   // 防止二次调用这个文件
+#ifndef BalanceCar_h // 防止二次调用这个文件
 #define BalanceCar_h
 
 #include <Arduino.h>
@@ -19,16 +19,15 @@ public:
     void go_forward();
     void go_back();
 
-    int pulseright
-        = 0;                       // 40ms周期统计的右侧旋转脉冲数量
-    int    pulseleft = 0;          // 40ms周期统计的左侧旋转脉冲数量
-    double pwm_r = 0, pwm_l = 0;   // 右侧pwm(+-255)和 左侧pwm(+-255) 输出,最后应用要转成(0-255)
+    int pulseright = 0; // 40ms周期统计的右侧旋转脉冲数量,每5ms变化一次
+    int pulseleft = 0; // 40ms周期统计的左侧旋转脉冲数量
+    double pwm_r = 0, pwm_l = 0; // 右侧pwm(+-255)和 左侧pwm(+-255) 输出,最后应用要转成(0-255)
 
 private:
-    double angleoutput = 0;   // 角度环输出
-    double speedoutput = 0;   // 速度环输出
+    double angleoutput = 0; // 角度环输出
+    double speedoutput = 0; // 速度环输出
 
-    float          speeds_filterold;   // 速度滤波
-    volatile float positions;          // 位置
+    float speeds_filterold; // 速度滤波
+    volatile float positions; // 位置
 };
 #endif
