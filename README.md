@@ -4,4 +4,4 @@
 
 个人的UNO项目仓库
 
-![](doc/平衡车演示.gif)
+![](doc/test.gif)
